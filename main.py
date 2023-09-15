@@ -42,7 +42,7 @@ def class_recognizor(ip):
 def host_counter(cidr):
     n = 32 - int(cidr)
     host = (2**n)-2
-    print('AVALIBLE HOSTS: ' + f'2^{n} = ' + f'{host}')
+    print('AVALIBLE HOSTS: ' + f'2^{n} -2 = ' + f'{host}')
 
 
 def subnet(cidr):
