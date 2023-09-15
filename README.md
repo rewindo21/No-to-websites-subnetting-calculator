@@ -6,3 +6,4 @@ The act of dividing a network into at least two separate networks is called subn
 
 ## Below is a table providing typical subnets for IPv4:
 ![sample](/src/sample.png)
+![<img src="/src/sample.png" width="250"/>](/src/sample.png)
