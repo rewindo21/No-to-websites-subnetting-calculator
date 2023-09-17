@@ -1,5 +1,5 @@
 <h1 id="ipv4-subnet-calculator">IPv4 Subnet Calculator</h1>
-<p>This calculator returns a variety of information regarding Internet Protocol version 4 (IPv4) subnets including possible network addresses, usable host ranges, subnet mask, and IP class, among others.</p>
+<p>I've used <a href="https://www.calculator.net/ip-subnet-calculator.html">this website</a> a lot for Subnetting IP addresses, so I decided to make something similar. This calculator returns a variety of information regarding Internet Protocol version 4 (IPv4) subnets including possible network addresses, usable host ranges, subnet mask, and IP class, among others.</p>
 <h2 id="screen-shot">Screen Shot</h2>
 <p><img src="./src/screen.jpg" alt="screen shot" width="337.92" height="256.32"></p>
 <h2 id="description">Description</h2>
