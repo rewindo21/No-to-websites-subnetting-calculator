@@ -1,5 +1,5 @@
 # IPv4 Subnet Calculator
-I've used [this](#https://www.calculator.net/ip-subnet-calculator.html) a lot for Subnetting IP addresses, so I decided to make something similar. This calculator returns a variety of information regarding Internet Protocol version 4 (IPv4) subnets including possible network addresses, usable host ranges, subnet mask, and IP class, among others.
+I've used [this](https://www.calculator.net/ip-subnet-calculator.html) a lot for Subnetting IP addresses, so I decided to make something similar. This calculator returns a variety of information regarding Internet Protocol version 4 (IPv4) subnets including possible network addresses, usable host ranges, subnet mask, and IP class, among others.
 
 ## Sample
 <p><img src="./src/screen.jpg" alt="screen shot" width="337.92" height="256.32"></p>
