@@ -12,20 +12,14 @@ class bcolors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
-def class_recognizor(ipv4_addr:int):
-    n = int(ipv4_addr)
-    if n == 10 :
-        return "A (PRIVATE RANGE)"
-    elif 1 <= n <= 125:
-        return "A"
-    elif 128 <= n <= 191 and 16 <= n <= 31 :
-        return "B (PRIVATE RANGE)"
-    elif 128 <= n <= 191:
-        return "B"
-    elif n == 192:
-        return "C (PRIVATE RANGE)"
-    elif 192 <= n <= 222 :
-        return "C"
+def class_recognizor(first_octet:int):
+    n = int(first_octet)
+    if n == 10: return "A (PRIVATE RANGE)"
+    elif 1 <= n <= 125: return "A"
+    elif 128 <= n <= 191 and 16 <= n <= 31: return "B (PRIVATE RANGE)"
+    elif 128 <= n <= 191: return "B"
+    elif n == 192: return "C (PRIVATE RANGE)"
+    elif 192 <= n <= 222: return "C"
 
 def test_ip(ipv4_addr:str):
     return bool(re.match(r'^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$', ipv4_addr))
@@ -58,22 +52,15 @@ if cidr > 24: color_line += 1
 print(f"IPv4 Address b10: {sys.argv[1]}")
 print(f"IPv4 SubMask b10: {sys.argv[2]}" + f"\tCIDR: /{cidr}")
 print(f"IPv4 Class: {class_recognizor(ip_first_octet)}")
-print(f"Available hosts: {(2 ** (32 - cidr)) - 2}\n")
+print(f"Available hosts: {(2 ** (32 - cidr)) - 2}")
+print("IPv4 Nerwork    b10: {0}.{1}.{2}.{3}".format(*[int(octet,2) for octet in f"{network_b[:color_line]}{empty_b[color_line:]}".split('.')]))
+print("IPv4 Broadcast  b10: {0}.{1}.{2}.{3}".format(*[int(octet,2) for octet in f"{network_b[:color_line]}{full_b[color_line:]}".split('.')]))
+print("\n")
 
-
-print(f"Mask Split")
 print(f"IPv4 Address b2: {ip_b}")
 print(f"IPv4 SubMask b2: {mask_b}")
-print(f"IPv4 Network b2: {bcolors.OKBLUE + network_b[:color_line] + bcolors.ENDC}\
-{bcolors.OKGREEN + network_b[color_line:] + bcolors.ENDC}")
-print(f"IPv4 Hosts   b2: {bcolors.OKBLUE + host_b[:color_line] + bcolors.ENDC}\
-{bcolors.OKGREEN + host_b[color_line:] + bcolors.ENDC}\n")
+print(f"IPv4 Network b2: {bcolors.OKBLUE + network_b[:color_line] + bcolors.ENDC}{network_b[color_line:]}")
+print(f"IPv4 Hosts   b2: {host_b[:color_line]}{bcolors.OKBLUE + host_b[color_line:] + bcolors.ENDC}")
+print(f"IPv4 First   b2: {bcolors.OKBLUE + network_b[:color_line] + bcolors.ENDC}{bcolors.OKGREEN + empty_b[color_line:] + bcolors.ENDC}")
+print(f"IPv4 Last    b2: {bcolors.OKBLUE + network_b[:color_line] + bcolors.ENDC}{bcolors.OKGREEN + full_b[color_line:] + bcolors.ENDC}")
 
-print("First and Last Addresses in Range")
-print("IPv4 First b10: {0}.{1}.{2}.{3}".format(*[int(octet,2) for octet in f"{network_b[:color_line]}{empty_b[color_line:]}".split('.')]))
-print("IPv4 Last  b10: {0}.{1}.{2}.{3}".format(*[int(octet,2) for octet in f"{network_b[:color_line]}{full_b[color_line:]}".split('.')]))
-
-print(f"IPv4 First b2: {bcolors.OKBLUE + network_b[:color_line] + bcolors.ENDC}\
-{bcolors.OKGREEN + empty_b[color_line:] + bcolors.ENDC}")
-print(f"IPv4 Last  b2: {bcolors.OKBLUE + network_b[:color_line] + bcolors.ENDC}\
-{bcolors.OKGREEN + full_b[color_line:] + bcolors.ENDC}")
