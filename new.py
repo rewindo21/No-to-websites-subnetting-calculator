@@ -31,6 +31,7 @@ if not all([test_ip(ip) for ip in sys.argv[1:3]]):
 
 ip_ints = [int(i) for i in sys.argv[1].split('.')]
 mask_ints = [int(i) for i in sys.argv[2].split('.')]
+wildcard_ints = [(~mask_ints[i] & 0xff) for i in range(4)]
 network_ints = [ip_ints[i] & mask_ints[i] for i in range(4)]
 broadcast_ints = [ip_ints[i] | (~mask_ints[i] & 0xff) for i in range(4)]
 first_host_ints = [network_ints[i] for i in range(4)]
@@ -41,6 +42,7 @@ last_host_ints[3] -= 1
 
 ip_b = "{0:08b}.{1:08b}.{2:08b}.{3:08b}".format(*ip_ints)
 mask_b = "{0:08b}.{1:08b}.{2:08b}.{3:08b}".format(*mask_ints)
+whildcard_b = "{0:08b}.{1:08b}.{2:08b}.{3:08b}".format(*wildcard_ints)
 network_b = "{0:08b}.{1:08b}.{2:08b}.{3:08b}".format(*network_ints)
 broadcast_b = "{0:08b}.{1:08b}.{2:08b}.{3:08b}".format(*broadcast_ints)
 first_host_b = "{0:08b}.{1:08b}.{2:08b}.{3:08b}".format(*first_host_ints)
@@ -68,6 +70,7 @@ print("\n")
 
 print(f"IPv4 Address    b10: {sys.argv[1]}")
 print(f"IPv4 SubMask    b10: {sys.argv[2]}")
+print(f"IPv4 Whildcard  b10: {wildcard_ints[0]}.{wildcard_ints[1]}.{wildcard_ints[2]}.{wildcard_ints[3]}")
 print(f"IPv4 Network    b10: {network_ints[0]}.{network_ints[1]}.{network_ints[2]}.{network_ints[3]}")
 print(f"IPv4 Broadcast  b10: {broadcast_ints[0]}.{broadcast_ints[1]}.{broadcast_ints[2]}.{broadcast_ints[3]}")
 print(f"IPv4 First Host b10: {first_host_ints[0]}.{first_host_ints[1]}.{first_host_ints[2]}.{first_host_ints[3]}")
@@ -77,6 +80,7 @@ print("\n")
 
 print(f"IPv4 Address    b2: {ip_b}")
 print(f"IPv4 SubMask    b2: {mask_b}")
+print(f"IPv4 Whildcard  b2: {whildcard_b}")
 print(f"IPv4 Network    b2: {bcolors.OKBLUE + network_b[:color_line] + bcolors.ENDC}{network_b[color_line:]}")
 print(f"IPv4 Broadcast  b2: {bcolors.OKBLUE + broadcast_b[:color_line] + bcolors.ENDC}{broadcast_b[color_line:]}")
 print(f"IPv4 First Host b2: {first_host_b[:color_line]}{bcolors.OKBLUE + first_host_b[color_line:] + bcolors.ENDC}")
