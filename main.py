@@ -1,199 +1,73 @@
+import sys
 import re
 
-def ip_check(ip):
-    global ipflag
-    ipfcheck = re.search("(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\."
-                         "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\."
-                         "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\."
-                         "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])", ip)
-    if ipfcheck:
-        ipflag = True
-    else:
-        ipflag = False
+class bcolors:
+    OKBLUE = '\033[94m'
+    ENDC = '\033[0m'
+
+def class_recognizor(first_octet):
+    n = int(first_octet)
+    if n == 10: return "A (PRIVATE RANGE)"
+    elif 1 <= n <= 125: return "A"
+    elif 128 <= n <= 191 and 16 <= n <= 31: return "B (PRIVATE RANGE)"
+    elif 128 <= n <= 191: return "B"
+    elif n == 192: return "C (PRIVATE RANGE)"
+    elif 192 <= n <= 222: return "C"
+
+def int2b(integer_octetcs):
+    return "{0:08b}.{1:08b}.{2:08b}.{3:08b}".format(*integer_octetcs)
+
+def test_ip(ipv4_addr:str):
+    return bool(re.match(r'^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$', ipv4_addr))
 
 
-def cidr_check(cidr):
-    global cidrflag
-    if 8 <= int(cidr) <= 30:
-        cidrflag = True
-    else:
-        cidrflag = False
+if not all([test_ip(ip) for ip in sys.argv[1:3]]):
+    print(f"${sys.argv[0]} <ipv4 addr> <subnet mask>")
+    exit()
+
+ip_int = [int(i) for i in sys.argv[1].split('.')]
+mask_int = [int(i) for i in sys.argv[2].split('.')]
+wildcard_int = [(~mask_int[i] & 0xff) for i in range(4)]
+network_int = [ip_int[i] & mask_int[i] for i in range(4)]
+broadcast_int = [ip_int[i] | (~mask_int[i] & 0xff) for i in range(4)]
+first_host_int = [network_int[i] for i in range(4)]
+first_host_int[3] += 1
+last_host_int = [broadcast_int[i] for i in range(4)]
+last_host_int[3] -= 1
+
+ip_first_octet = "{0}".format(*ip_int)
+
+cidr = int2b(mask_int).count('1')
+color_line = cidr
+if cidr > 8: color_line += 1
+if cidr > 16: color_line += 1
+if cidr > 24: color_line += 1
 
 
-def class_recognizor(ip):
-    decimal = []
-    for octet in ip.split('.'):
-        decimal.append(octet)
+print("\n")
 
-    if int(decimal[0]) == 10 :
-        print("CLASS: A (PRIVATE RANGE)")
-    elif 1 <= int(decimal[0]) <= 125:
-        print("CLASS: A")
-    elif 128 <= int(decimal[0]) <= 191 and 16 <= int(decimal[1]) <= 31 :
-        print("CLASS: B (PRIVATE RANGE)")
-    elif 128 <= int(decimal[0]) <= 191:
-        print("CLASS: B")
-    elif int(decimal[0]) == 192:
-        print("CLASS: C (PRIVATE RANGE)")
-    elif 192 <= int(decimal[0]) <= 222 :
-        print("CLASS: C")
+print(f"IPv4 Class: {class_recognizor(ip_first_octet)}")
+print(f"CIDR Notation: /{cidr}")
+print(f"Number of Usable Hosts: {(2 ** (32 - cidr)) - 2}")
 
+print("\n")
 
-def host_counter(cidr):
-    n = 32 - int(cidr)
-    host = (2**n)-2
-    print('AVALIBLE HOSTS: ' + f'2^{n} -2 = ' + f'{host}')
+print(f"IPv4 Address        b10: {sys.argv[1]}")
+print(f"IPv4 SubMask        b10: {sys.argv[2]}")
+print(f"IPv4 Whildcard      b10: {wildcard_int[0]}.{wildcard_int[1]}.{wildcard_int[2]}.{wildcard_int[3]}")
+print(f"Network Address     b10: {network_int[0]}.{network_int[1]}.{network_int[2]}.{network_int[3]}")
+print(f"Broadcast Address   b10: {broadcast_int[0]}.{broadcast_int[1]}.{broadcast_int[2]}.{broadcast_int[3]}")
+print(f"First Avalible Host b10: {first_host_int[0]}.{first_host_int[1]}.{first_host_int[2]}.{first_host_int[3]}")
+print(f"Last Avalible Host  b10: {last_host_int[0]}.{last_host_int[1]}.{last_host_int[2]}.{last_host_int[3]}")
 
+print("\n")
 
-def subnet(cidr):
-    cidr = int(cidr)
-    global mask
-    mask = '00000000.00000000.00000000.00000000'
-    for i in mask:
-        if cidr > 0:
-            mask = mask.replace('0', '1', 1)
-        cidr -= 1
-    
-
-    temp = []
-    for x in mask.split('.'):
-        temp.append(str(int(x, 2)))
-    
-    subnet_mask = '.'.join(temp)
-    print('SUBNET MASK: ' + subnet_mask)
+print(f"IPv4 Address        b2: {int2b(ip_int)}")
+print(f"IPv4 SubMask        b2: {bcolors.OKBLUE + int2b(mask_int)[:color_line] + bcolors.ENDC}{int2b(mask_int)[color_line:]}")
+print(f"IPv4 Whildcard      b2: {int2b(wildcard_int)[:color_line]}{bcolors.OKBLUE + int2b(wildcard_int)[color_line:] + bcolors.ENDC}")
+print(f"Network Address     b2: {bcolors.OKBLUE + int2b(network_int)[:color_line] + bcolors.ENDC}{int2b(network_int)[color_line:]}")
+print(f"Broadcast Address   b2: {bcolors.OKBLUE + int2b(broadcast_int)[:color_line] + bcolors.ENDC}{int2b(broadcast_int)[color_line:]}")
+print(f"First Avalible Host b2: {int2b(first_host_int)[:color_line]}{bcolors.OKBLUE + int2b(first_host_int)[color_line:] + bcolors.ENDC}")
+print(f"Last Avalible Host  b2: {int2b(last_host_int)[:color_line]}{bcolors.OKBLUE +int2b(last_host_int)[color_line:] + bcolors.ENDC}")
 
 
-def whildcard(cidr):
-    cidr = int(cidr)
-    mask = '11111111.11111111.11111111.11111111'
-    for i in mask:
-        if cidr > 0:
-            mask = mask.replace('1', '0', 1)
-        cidr -= 1
-
-    temp = []
-    for x in mask.split('.'):
-        temp.append(str(int(x, 2)))
-    
-    whildcard_mask = '.'.join(temp)
-    print('WHILDCARD MASK: ' + whildcard_mask)
-
-
-def int2bin(ip):
-    temp = []
-    for x in ip.split('.'):
-        temp.append(bin(int(x))[2:].rjust(8, '0'))
-    
-    global binary_ip
-    binary_ip = '.'.join(temp)
-    return binary_ip
-
-
-def network_ip(binary_ip, mask):
-    ip_list = []
-    for i in binary_ip:
-        if i.isdigit():
-            ip_list.append(i)
-
-    n = mask.count('1')
-    m = []
-    for i in range(32-n):
-        m.append('0')
-
-    temp = ip_list[:n]
-    temp.extend(m)
-    temp.insert(8, '.')
-    temp.insert(17, '.')
-    temp.insert(26, '.')
-    global binary_net_ip
-    binary_net_ip = ''.join(temp)
-
-    temp2 = []
-    for x in binary_net_ip.split('.'):
-        temp2.append(str(int(x, 2)))
-    
-    net_ip = '.'.join(temp2)
-    print('NETWORK IP: ' + net_ip)
-
-
-def broadcast_ip(binary_ip, mask):
-    ip_list = []
-    for i in binary_ip:
-        if i.isdigit():
-            ip_list.append(i)
-
-    n = mask.count('1')
-    m = []
-    for i in range(32-n):
-        m.append('1')
-
-    temp = ip_list[:n]
-    temp.extend(m)
-    temp.insert(8, '.')
-    temp.insert(17, '.')
-    temp.insert(26, '.')
-    global binary_bc_ip
-    binary_bc_ip = ''.join(temp)
-
-    temp2 = []
-    for x in binary_bc_ip.split('.'):
-        temp2.append(str(int(x, 2)))
-    
-    bc_ip = '.'.join(temp2)
-    print('BROADCAST IP: ' + bc_ip)
-
-
-def first_ip(binary_net_ip):
-    net_ip_list = []
-    for i in binary_net_ip:
-        net_ip_list.append(i)
-
-    net_ip_list[34] = '1'
-    binary_first_ip = ''.join(net_ip_list)
-
-    temp = []
-    for x in binary_first_ip.split('.'):
-        temp.append(str(int(x, 2)))
-
-    f_ip = '.'.join(temp)
-    print('FIRST AVALIBLE IP: ' + f_ip)
-
-
-def last_ip(binary_bc_ip):
-    bc_ip_list = []
-    for i in binary_bc_ip:
-        bc_ip_list.append(i)
-
-    bc_ip_list[34] = '0'
-    binary_last_ip = ''.join(bc_ip_list)
-
-    temp = []
-    for x in binary_last_ip.split('.'):
-        temp.append(str(int(x, 2)))
-
-    l_ip = '.'.join(temp)
-    print('LAST AVALIBLE IP: ' + l_ip)
-
-
-if __name__ == "__main__":
-    ip = input("ENTER IPv4 : ")
-    ip_check(ip)
-    cidr = input("ENTER CIDR : \\")
-    cidr_check(cidr)
-
-    if ipflag == True and cidrflag == True:
-        print("-----------------------")
-        class_recognizor(ip)
-        host_counter(cidr)
-        subnet(cidr)
-        whildcard(cidr)
-        int2bin(ip)
-        network_ip(binary_ip, mask)
-        broadcast_ip(binary_ip, mask)
-        first_ip(binary_net_ip)
-        last_ip(binary_bc_ip)
-        print("-----------------------")
-    elif ipflag != True:
-        print("Invalid IP")
-    elif cidrflag != True:
-        print("Invalid CIDR")
